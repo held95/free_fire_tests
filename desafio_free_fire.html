@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Island Fire - Sistema de Mochila</title>
+  <style>
+    /* =======================================
+       ESTILO GERAL - TEMA BATTLE ROYALE
+       ======================================= */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Poppins", Arial, sans-serif;
+      background: radial-gradient(circle at top, #111827 0, #020617 55%, #000 100%);
+      color: #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    header {
+      width: 100%;
+      padding: 18px 20px;
+      background: linear-gradient(90deg, #0f172a, #1f2937);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      color: #60a5fa;
+    }
+
+    header p {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+    }
+
+    main {
+      width: 100%;
+      max-width: 1200px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1.2fr 1.8fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 950px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .painel {
+      background: rgba(15, 23, 42, 0.92);
+      border-radius: 16px;
+      padding: 16px 18px;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: 0 0 16px rgba(15, 23, 42, 0.9);
+    }
+
+    .painel h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      color: #a5b4fc;
+    }
+
+    .painel .subtitulo {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    .status-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tag {
+      font-size: 0.75rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #1e293b;
+      color: #e5e7eb;
+      border: 1px solid #334155;
+    }
+
+    .hp-bar-container {
+      background: #111827;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      overflow: hidden;
+      width: 180px;
+      height: 14px;
+    }
+
+    .hp-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e, #eab308);
+      width: 80%;
+    }
+
+    .zone-bar {
+      background: #111827;
+      border-radius: 999px;
+      border: 1px solid #4b5563;
+      overflow: hidden;
+      width: 180px;
+      height: 14px;
+    }
+
+    .zone-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #ef4444, #f97316);
+      width: 40%;
+    }
+
+    .painel-hud p {
+      font-size: 0.9rem;
+      margin: 6px 0;
+      color: #e5e7eb;
+    }
+
+    .inventory-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 950px) {
+      .inventory-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .box {
+      background: #020617;
+      border-radius: 12px;
+      border: 1px solid #1f2937;
+      padding: 10px 12px;
+    }
+
+    .box h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: #f97316;
+    }
+
+    label {
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #4b5563;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.7);
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: #2563eb;
+      color: #f9fafb;
+      margin: 3px 4px 3px 0;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    button.secundario {
+      background: #22c55e;
+      color: #022c22;
+    }
+
+    button.perigo {
+      background: #ef4444;
+    }
+
+    button.ghost {
+      background: #0f172a;
+      border: 1px solid #4b5563;
+    }
+
+    .lista-itens {
+      max-height: 180px;
+      overflow-y: auto;
+      font-size: 0.85rem;
+      margin-top: 6px;
+      border-radius: 10px;
+      padding: 6px 8px;
+      background: #020617;
+      border: 1px solid #1f2937;
+    }
+
+    .lista-itens table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .lista-itens th,
+    .lista-itens td {
+      padding: 4px 6px;
+      text-align: left;
+      border-bottom: 1px solid #1f2937;
+    }
+
+    .lista-itens th {
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .lista-itens td {
+      font-size: 0.8rem;
+    }
+
+    .log {
+      margin-top: 8px;
+      font-size: 0.8rem;
+      max-height: 120px;
+      overflow-y: auto;
+      border-radius: 10px;
+      padding: 6px 8px;
+      background: #020617;
+      border: 1px solid #1f2937;
+    }
+
+    .log-entry span {
+      color: #64748b;
+    }
+
+    .comparacao {
+      font-size: 0.8rem;
+      margin-top: 4px;
+      color: #e5e7eb;
+    }
+
+    .comparacao span {
+      color: #facc15;
+      font-weight: 600;
+    }
+
+    footer {
+      margin: 10px 0 18px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Island Fire - Sistema de Mochila</h1>
+    <p>Sobreviva na ilha, gerencie seu inventário e compare Vetor x Lista Encadeada.</p>
+  </header>
+
+  <main>
+    <!-- HUD / narrativa -->
+    <section class="painel painel-hud">
+      <h2>Status do Operador</h2>
+      <p class="subtitulo">
+        Você caiu de paraquedas em uma ilha hostil. A zona de perigo está fechando e sua mochila é a diferença entre viver e ser eliminado.
+      </p>
+
+      <div class="status-bar">
+        <div>
+          <span class="tag">Operador: Lobo-01</span>
+          <span class="tag">Modo: Solo</span>
+        </div>
+      </div>
+
+      <p>Vida</p>
+      <div class="hp-bar-container">
+        <div class="hp-bar"></div>
+      </div>
+
+      <p style="margin-top:8px;">Zona de perigo</p>
+      <div class="zone-bar">
+        <div class="zone-inner"></div>
+      </div>
+
+      <p style="margin-top:12px;">
+        Abaixo você pode gerenciar duas mochilas:
+      </p>
+      <ul style="font-size:0.85rem; color:#cbd5e1; padding-left:18px;">
+        <li><strong>Mochila Vetor</strong>: usa lista sequencial, permite ordenação e busca binária.</li>
+        <li><strong>Mochila Lista Encadeada</strong>: mais flexível, dinâmica, sem limite fixo.</li>
+      </ul>
+      <p style="font-size:0.8rem; color:#9ca3af;">
+        Observe o número de comparações em cada tipo de busca e perceba como a estrutura de dados impacta a performance em plena zona de conflito.
+      </p>
+
+      <div class="log" id="game-log"></div>
+    </section>
+
+    <!-- Inventários -->
+    <section class="painel">
+      <h2>Mochilas de Inventário</h2>
+      <p class="subtitulo">
+        Cadastre alimentos, armas, munições e ferramentas. Insira, remova, liste e busque itens em duas estruturas diferentes.
+      </p>
+
+      <div class="inventory-row">
+        <!-- Mochila Vetor -->
+        <div class="box">
+          <h3>Mochila Vetor (até 10 itens)</h3>
+          <form onsubmit="return false;">
+            <label for="vetor-nome">Nome do item</label>
+            <input type="text" id="vetor-nome" placeholder="Ex: AK-47, Kit Medico">
+
+            <label for="vetor-tipo">Tipo</label>
+            <select id="vetor-tipo">
+              <option value="arma">Arma</option>
+              <option value="municao">Munição</option>
+              <option value="cura">Cura</option>
+              <option value="ferramenta">Ferramenta</option>
+            </select>
+
+            <label for="vetor-quantidade">Quantidade</label>
+            <input type="number" id="vetor-quantidade" min="1" value="1">
+
+            <button type="button" class="secundario" onclick="adicionarItemVetor()">Adicionar ao vetor</button>
+            <button type="button" class="ghost" onclick="preencherExemploVetor()">Preencher exemplo</button>
+          </form>
+
+          <div style="margin-top:8px;">
+            <label for="vetor-remover">Remover por nome</label>
+            <input type="text" id="vetor-remover" placeholder="Nome exato do item">
+            <button type="button" class="perigo" onclick="removerItemVetor()">Remover</button>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label for="vetor-busca">Buscar por nome (sequencial)</label>
+            <input type="text" id="vetor-busca" placeholder="Nome exato do item">
+            <button type="button" onclick="buscarSequencialVetor()">Buscar seq.</button>
+          </div>
+
+          <div style="margin-top:6px;">
+            <button type="button" onclick="ordenarVetor()">Ordenar por nome (Selection Sort)</button>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label for="vetor-busca-bin">Busca binária (após ordenar)</label>
+            <input type="text" id="vetor-busca-bin" placeholder="Nome exato do item">
+            <button type="button" onclick="buscarBinariaVetor()">Buscar binária</button>
+          </div>
+
+          <div class="comparacao">
+            Comparações (seq. vetor): <span id="comp-vetor-seq">0</span><br>
+            Comparações (bin. vetor): <span id="comp-vetor-bin">0</span>
+          </div>
+
+          <div class="lista-itens" id="vetor-lista"></div>
+        </div>
+
+        <!-- Mochila Lista Encadeada -->
+        <div class="box">
+          <h3>Mochila Lista Encadeada</h3>
+          <form onsubmit="return false;">
+            <label for="lista-nome">Nome do item</label>
+            <input type="text" id="lista-nome" placeholder="Ex: Granada, Colete Lv3">
+
+            <label for="lista-tipo">Tipo</label>
+            <select id="lista-tipo">
+              <option value="arma">Arma</option>
+              <option value="municao">Munição</option>
+              <option value="cura">Cura</option>
+              <option value="ferramenta">Ferramenta</option>
+            </select>
+
+            <label for="lista-quantidade">Quantidade</label>
+            <input type="number" id="lista-quantidade" min="1" value="1">
+
+            <button type="button" class="secundario" onclick="adicionarItemLista()">Adicionar à lista</button>
+          </form>
+
+          <div style="margin-top:8px;">
+            <label for="lista-remover">Remover por nome</label>
+            <input type="text" id="lista-remover" placeholder="Nome exato do item">
+            <button type="button" class="perigo" onclick="removerItemLista()">Remover</button>
+          </div>
+
+          <div style="margin-top:8px;">
+            <label for="lista-busca">Buscar por nome (sequencial)</label>
+            <input type="text" id="lista-busca" placeholder="Nome exato do item">
+            <button type="button" onclick="buscarSequencialLista()">Buscar seq.</button>
+          </div>
+
+          <div class="comparacao">
+            Comparações (seq. lista): <span id="comp-lista-seq">0</span>
+          </div>
+
+          <div class="lista-itens" id="lista-lista"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Island Fire · Estruturas de Dados para Jogos · Vetor x Lista Encadeada
+  </footer>
+
+  <script>
+    // ==================================================
+    // MODELO DE DADOS
+    // Em C teríamos:
+    // struct Item { char nome[30]; char tipo[20]; int quantidade; };
+    // struct No { Item dados; struct No *proximo; };
+    // Aqui, usamos objetos JavaScript equivalentes.
+    // ==================================================
+
+    const MAX_ITENS_VETOR = 10;
+
+    // Mochila Vetor
+    let mochilaVetor = []; // array de itens
+    let comparacoesSeqVetor = 0;
+    let comparacoesBinVetor = 0;
+
+    // Mochila Lista Encadeada
+    let listaHead = null; // nó inicial da lista
+    let comparacoesSeqLista = 0;
+
+    // Nó da lista encadeada
+    function No(item) {
+      this.item = item;
+      this.proximo = null;
+    }
+
+    // Utilitário de log estilo "diário de batalha"
+    function addLog(msg) {
+      const log = document.getElementById("game-log");
+      const div = document.createElement("div");
+      const hora = new Date().toLocaleTimeString();
+      div.className = "log-entry";
+      div.innerHTML = `<span>[${hora}]</span> ${msg}`;
+      log.prepend(div);
+    }
+
+    // ==================================================
+    // FUNÇÕES PARA MOCHILA VETOR
+    // ==================================================
+
+    function criarItemDeFormulario(prefixo) {
+      const nome = document.getElementById(prefixo + "-nome").value.trim();
+      const tipo = document.getElementById(prefixo + "-tipo").value;
+      const qtd = parseInt(document.getElementById(prefixo + "-quantidade").value, 10);
+
+      if (!nome || isNaN(qtd) || qtd <= 0) {
+        alert("Preencha nome e quantidade > 0.");
+        return null;
+      }
+
+      return { nome, tipo, quantidade: qtd };
+    }
+
+    function adicionarItemVetor() {
+      if (mochilaVetor.length >= MAX_ITENS_VETOR) {
+        alert("Mochila (vetor) cheia! Capacidade maxima: " + MAX_ITENS_VETOR);
+        return;
+      }
+
+      const item = criarItemDeFormulario("vetor");
+      if (!item) return;
+
+      mochilaVetor.push(item);
+      addLog(`Item "${item.nome}" adicionado ao vetor.`);
+      renderizarVetor();
+    }
+
+    function preencherExemploVetor() {
+      mochilaVetor = [
+        { nome: "AK-47", tipo: "arma", quantidade: 1 },
+        { nome: "Kit Medico", tipo: "cura", quantidade: 2 },
+        { nome: "M4A1", tipo: "arma", quantidade: 1 },
+        { nome: "Granada", tipo: "arma", quantidade: 3 },
+        { nome: "Bandagem", tipo: "cura", quantidade: 5 }
+      ];
+      addLog("Mochila vetor preenchida com itens de exemplo.");
+      renderizarVetor();
+    }
+
+    function removerItemVetor() {
+      const nome = document.getElementById("vetor-remover").value.trim();
+      if (!nome) {
+        alert("Informe o nome exato do item para remover.");
+        return;
+      }
+      const tamanhoAntes = mochilaVetor.length;
+      mochilaVetor = mochilaVetor.filter(item => item.nome.toLowerCase() !== nome.toLowerCase());
+      const removidos = tamanhoAntes - mochilaVetor.length;
+
+      if (removidos > 0) {
+        addLog(`Item "${nome}" removido do vetor (${removidos} ocorrencia(s)).`);
+      } else {
+        addLog(`Nenhum item com nome "${nome}" encontrado no vetor.`);
+      }
+      renderizarVetor();
+    }
+
+    function buscarSequencialVetor() {
+      const nome = document.getElementById("vetor-busca").value.trim().toLowerCase();
+      if (!nome) {
+        alert("Informe o nome do item para buscar.");
+        return;
+      }
+
+      comparacoesSeqVetor = 0;
+      let encontrado = null;
+
+      for (let i = 0; i < mochilaVetor.length; i++) {
+        comparacoesSeqVetor++;
+        if (mochilaVetor[i].nome.toLowerCase() === nome) {
+          encontrado = mochilaVetor[i];
+          break;
+        }
+      }
+
+      document.getElementById("comp-vetor-seq").textContent = comparacoesSeqVetor;
+
+      if (encontrado) {
+        addLog(`Busca sequencial (vetor): encontrado "${encontrado.nome}" (qtd ${encontrado.quantidade}) em ${comparacoesSeqVetor} comparacao(oes).`);
+      } else {
+        addLog(`Busca sequencial (vetor): item nao encontrado apos ${comparacoesSeqVetor} comparacao(oes).`);
+      }
+    }
+
+    // Selection Sort por nome (ordem alfabética)
+    function ordenarVetor() {
+      comparacoesSeqVetor = 0; // vamos usar esse contador para as comparações da ordenação
+      const n = mochilaVetor.length;
+
+      for (let i = 0; i < n - 1; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < n; j++) {
+          comparacoesSeqVetor++;
+          if (mochilaVetor[j].nome.toLowerCase() < mochilaVetor[minIndex].nome.toLowerCase()) {
+            minIndex = j;
+          }
+        }
+        if (minIndex !== i) {
+          const temp = mochilaVetor[i];
+          mochilaVetor[i] = mochilaVetor[minIndex];
+          mochilaVetor[minIndex] = temp;
+        }
+      }
+
+      document.getElementById("comp-vetor-seq").textContent = comparacoesSeqVetor;
+      addLog(`Vetor ordenado por nome usando Selection Sort (${comparacoesSeqVetor} comparacoes).`);
+      renderizarVetor();
+    }
+
+    function buscarBinariaVetor() {
+      const alvoBruto = document.getElementById("vetor-busca-bin").value.trim();
+      if (!alvoBruto) {
+        alert("Informe o nome do item para busca binaria.");
+        return;
+      }
+      const alvo = alvoBruto.toLowerCase();
+
+      if (mochilaVetor.length === 0) {
+        alert("Mochila vazia. Nao ha o que buscar.");
+        return;
+      }
+
+      // ATENÇÃO: pressupõe vetor já ordenado
+      comparacoesBinVetor = 0;
+      let inicio = 0;
+      let fim = mochilaVetor.length - 1;
+      let encontrado = null;
+
+      while (inicio <= fim) {
+        const meio = Math.floor((inicio + fim) / 2);
+        const nomeMeio = mochilaVetor[meio].nome.toLowerCase();
+        comparacoesBinVetor++;
+
+        if (nomeMeio === alvo) {
+          encontrado = mochilaVetor[meio];
+          break;
+        } else if (alvo < nomeMeio) {
+          fim = meio - 1;
+        } else {
+          inicio = meio + 1;
+        }
+      }
+
+      document.getElementById("comp-vetor-bin").textContent = comparacoesBinVetor;
+
+      if (encontrado) {
+        addLog(`Busca binaria (vetor): encontrado "${encontrado.nome}" (qtd ${encontrado.quantidade}) em ${comparacoesBinVetor} comparacao(oes).`);
+      } else {
+        addLog(`Busca binaria (vetor): item nao encontrado apos ${comparacoesBinVetor} comparacao(oes).`);
+      }
+    }
+
+    function renderizarVetor() {
+      const container = document.getElementById("vetor-lista");
+      if (mochilaVetor.length === 0) {
+        container.innerHTML = "<em>Nenhum item na mochila (vetor).</em>";
+        return;
+      }
+
+      let html = "<table><thead><tr><th>Nome</th><th>Tipo</th><th>Qtd</th></tr></thead><tbody>";
+      mochilaVetor.forEach(item => {
+        html += `<tr>
+          <td>${item.nome}</td>
+          <td>${item.tipo}</td>
+          <td>${item.quantidade}</td>
+        </tr>`;
+      });
+      html += "</tbody></table>";
+      container.innerHTML = html;
+    }
+
+    // ==================================================
+    // FUNÇÕES PARA MOCHILA LISTA ENCADEADA
+    // ==================================================
+
+    function adicionarItemLista() {
+      const item = criarItemDeFormulario("lista");
+      if (!item) return;
+
+      const novo = new No(item);
+
+      if (!listaHead) {
+        listaHead = novo;
+      } else {
+        let atual = listaHead;
+        while (atual.proximo) {
+          atual = atual.proximo;
+        }
+        atual.proximo = novo;
+      }
+
+      addLog(`Item "${item.nome}" adicionado à lista encadeada.`);
+      renderizarLista();
+    }
+
+    function removerItemLista() {
+      const nome = document.getElementById("lista-remover").value.trim().toLowerCase();
+      if (!nome) {
+        alert("Informe o nome do item para remover.");
+        return;
+      }
+
+      let atual = listaHead;
+      let anterior = null;
+      let removidos = 0;
+
+      while (atual) {
+        if (atual.item.nome.toLowerCase() === nome) {
+          removidos++;
+          if (anterior === null) {
+            listaHead = atual.proximo;
+            atual = listaHead;
+          } else {
+            anterior.proximo = atual.proximo;
+            atual = anterior.proximo;
+          }
+        } else {
+          anterior = atual;
+          atual = atual.proximo;
+        }
+      }
+
+      if (removidos > 0) {
+        addLog(`Item "${nome}" removido da lista encadeada (${removidos} ocorrencia(s)).`);
+      } else {
+        addLog(`Nenhum item com nome "${nome}" encontrado na lista encadeada.`);
+      }
+
+      renderizarLista();
+    }
+
+    function buscarSequencialLista() {
+      const nome = document.getElementById("lista-busca").value.trim().toLowerCase();
+      if (!nome) {
+        alert("Informe o nome do item para buscar.");
+        return;
+      }
+
+      comparacoesSeqLista = 0;
+      let atual = listaHead;
+      let encontrado = null;
+
+      while (atual) {
+        comparacoesSeqLista++;
+        if (atual.item.nome.toLowerCase() === nome) {
+          encontrado = atual.item;
+          break;
+        }
+        atual = atual.proximo;
+      }
+
+      document.getElementById("comp-lista-seq").textContent = comparacoesSeqLista;
+
+      if (encontrado) {
+        addLog(`Busca sequencial (lista): encontrado "${encontrado.nome}" (qtd ${encontrado.quantidade}) em ${comparacoesSeqLista} comparacao(oes).`);
+      } else {
+        addLog(`Busca sequencial (lista): item nao encontrado apos ${comparacoesSeqLista} comparacao(oes).`);
+      }
+    }
+
+    function renderizarLista() {
+      const container = document.getElementById("lista-lista");
+      if (!listaHead) {
+        container.innerHTML = "<em>Nenhum item na mochila (lista encadeada).</em>";
+        return;
+      }
+
+      let html = "<table><thead><tr><th>Nome</th><th>Tipo</th><th>Qtd</th></tr></thead><tbody>";
+      let atual = listaHead;
+      while (atual) {
+        html += `<tr>
+          <td>${atual.item.nome}</td>
+          <td>${atual.item.tipo}</td>
+          <td>${atual.item.quantidade}</td>
+        </tr>`;
+        atual = atual.proximo;
+      }
+      html += "</tbody></table>";
+      container.innerHTML = html;
+    }
+
+    // Render inicial
+    renderizarVetor();
+    renderizarLista();
+  </script>
+</body>
+</html>
